@@ -1,6 +1,9 @@
 $(function() {
-	
+	var period = 5000;
 	var maxContent = 10;
+	var minAdBlocks = 1;
+	var maxAdBlocks = 10;
+	var fadeOutTime = 1000;
 	var wall = new freewall("#adWall");
 	var adBlockTemplate = "<div class='adBlock' style='width:<%= width %>px; height:<%= height %>px; background-color:<%= color %>'><%= content %></div>";
 	var colors = [
@@ -12,6 +15,11 @@ $(function() {
 		"rgb(142, 68, 173)",
 		"rgb(243, 156, 18)",
 		"rgb(41, 128, 185)",
+		"rgb(192, 57, 43)",
+		"rgb(39, 14, 96)",
+		"rgb(14, 68, 173)",
+		"rgb(243, 156, 180)",
+		"rgb(123, 100, 122)",
 	];
 
 	var adContent = [
@@ -29,64 +37,72 @@ $(function() {
 	var setRandomContent = function(noElements){
 		var html = '';
 		for (var i = 0; i < noElements; i++) {
+			var width = Math.round((2 + 2 * Math.random()) * 100);
+			var height = Math.round((2 + 2 * Math.random()) * 100);
 			html += _.template(
 				adBlockTemplate, 
 				{ 
-					width : (1 + 3 * Math.random() << 0) * 200, 
-					height : (1 + 3 * Math.random() << 0) * 100, 
-					content : adContent[i%adContent.length], 
-					color : colors[i%colors.length]
+					width : width, 
+					height : height,
+					color : colors[Math.round(Math.random()*colors.length)%colors.length],
+					content : adContent[Math.round(Math.random()*adContent.length)%adContent.length]
 				}
 			);
 		}
 		return html;
 	}
 
-	$("#adWall").html(setRandomContent(18));
+	$("#adWall").html(setRandomContent(maxAdBlocks));
 	
 	wall.reset({
-		cellH: 100,
-		cellW: 200,
+		cellH: $(window).height() / 4,
+		cellW: $(window).width() / 4,
 		gutterX: 0,
 		gutterY: 0,
+		delay : 0 ,
 		selector:'.adBlock',
 		animate: true,
-		delay : 0 ,
 		onResize: function() {
-			wall.refresh($(window).width() - 10, $(window).height() - 10 );
+			wall.fitZone($(window).width(), $(window).height());
 		}
 	});
 
-
-	wall.fitZone($(window).width() - 10 , $(window).height() - 10);
-
-	$(".adBlock").filter(function(){return $(this).width() == 0 ;}).remove();
+	/* Fit blocks in window */
+	wall.fitZone($(window).width(), $(window).height());
+	
+	// periodically remove an element and create a new one 
 	var interval = setInterval(
 		function refresh() {
-			// Get a random element
-			var randomElements = $(".adBlock").filter(function() {
-   				return $(this).width() > 0 ;}).get().sort(function(){return Math.round(Math.random())-0.5}).slice(0,Math.round(Math.random()+1));
-			var newElementsToCreate = randomElements.length;
-		
-			// Delete it, maybe add some fade effect here to remove
-			$(randomElements).remove();
-
-			// Add new one
-			for (var i = 0 ; i < newElementsToCreate ; i++ )
-			{
-				wall.appendBlock(_.template(
-					adBlockTemplate, 
-					{ 
-						width : (1 + 3 * Math.random() << 0) * 200, 
-						height : (1 + 3 * Math.random() << 0) * 100, 
-						content : adContent[Math.floor((Math.random()*adContent.length))%adContent.length], 
-						color : colors[Math.floor(Math.random()*colors.length)%colors.length]
-					}));
-			}
-
-			wall.fitZone($(window).width() - 10 , $(window).height() - 10);
+			// Get a random element 
+			var randomElements = $(".adBlock").get().sort(
+					function(){return Math.round(Math.random())}).slice(0,1);
+			
+			$.when($(randomElements).fadeOut(fadeOutTime)).then(function() {
+				var noNewElements = randomElements.length;
+				$(randomElements).remove();
+				// reorder AdWall 
+				wall.refresh($(window).width(), $(window).height());
+				// Add new elements
+				for (var i = 0 ; i < noNewElements ; i++){
+					wall.appendBlock(
+						_.template(
+							adBlockTemplate, 
+							{ 
+								width : Math.round((2 + 3 * Math.random()) * 200), 
+								height : Math.round((2 + 3 * Math.random()) * 200), 
+								content : adContent[Math.floor((Math.random()*adContent.length))%adContent.length], 
+								color : colors[Math.floor(Math.random()*colors.length)%colors.length]
+							}
+						)
+					);
+				}
+				
+				// reorder AdWall 
+				wall.refresh($(window).width(), $(window).height());
+			});
 		}, 
-		5000
+		period
 	);
+	
 });
 
