@@ -55,9 +55,9 @@
             $item.attr({id: blockId, 'data-delay': item.index});
 
             //remove animation for speed render;
-            if (setting.animate && this.transition) {
-                this.setTransition(item, "");
-            }
+            //if (setting.animate && this.transition) {
+            //    this.setTransition(item, "");
+            //}
             
             // store original size;
             $item.attr('data-height') == null && $item.attr('data-height', $item.height());
@@ -801,6 +801,10 @@
                 return this;
             },
 
+	    removeBlock : function(items){
+
+            },
+
             appendBlock: function(items) {
                 var allBlock = $(items).appendTo(container);
                 var block = null;
@@ -809,6 +813,8 @@
                 allBlock.each(function(index, item) {
                     item.index = ++index;
                     if (block = layoutManager.loadBlock(item, setting)) {
+			block.x = container.position().left + Math.random()*container.width();
+			block.y = container.position().top + + Math.random()*container.height();
                         activeBlock.push(block);
                         klass.fireEvent('onBlockLoad', item, setting);
                     }

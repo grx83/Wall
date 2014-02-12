@@ -1,17 +1,16 @@
-html, body{
-	height : 100%;
-	margin : 0;
-	overflow: hidden;
-	font-size: 32px;
+body, html, .container-fluid {
+	width : 100%;
+	overflow:hidden;
 }
 
 #adWall {
-	min-height: 100%; 
+	height : 500px; 
 }
 
 .adBlock {
 	display : block;
 	text-align:center;
+	overflow: hidden;
 }
 
 .adText {
@@ -20,25 +19,26 @@ html, body{
 	display : block;
 	text-align:center;
 	color: #FFFFFF;
+	font-size: 32px;
 	font-family:Georgia, Arial, Serif;
 	text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.3);
 	background-position: center top;
 }
 
-.adWall .adBlock[data-state="init"] {
+.adBlock[data-state="init"] {
 	display: none;
 	opacity: 0.0;
 }
 
-.adWall .adBlock[data-state="start"]  {
+.adBlock[data-state="start"]  {
 	display: block;
-	animation: start 1.0s;
-	-webkit-animation: start 1.0;
+	opacity: 1.0;
+	animation: start 0.5s;
+	-webkit-animation: start 1.0s;
 }
 
-.adWall .adBlock[data-state="move"]  {
-	opacity: 1.0;
-	transition: top 1.0s, left 1.0s, width 1.0s, height 1.0s;
+.adBlock[data-state="move"]  {
+	transition: top 0.5s, left 0.5s, width 0.5s, height 0.5s;
 	-webkit-transition: top 0.5s, left 0.5s, width 0.5s, height 0.5s;
 }
 
