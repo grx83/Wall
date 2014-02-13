@@ -1,7 +1,7 @@
 $(function() {	
-	var maxRows = 3;
-	var maxCols = 3;
-	var period = 2000;
+	var maxRows = 2;
+	var maxCols = 2;
+	var period = 3000;
 	var maxContent = 10;
 	var minAdBlocks = 1;
 	var maxAdBlocks = 10;
@@ -9,6 +9,9 @@ $(function() {
 	var wallContainer = $("#adWall");
 	var wall = new freewall("#adWall");
 	var adBlockTemplate = "<div class='adBlock' style='width:<%= width %>px; height:<%= height %>px; background-color:<%= color %>'><%= content %></div>";
+	var animationSlideUpFlag = false;
+	var animationSlideLeftFlag = false;
+	var animationRotateFlag = false;
 	var colors = [
 		"rgb(135, 0, 0)",
 		"rgb(0, 106, 63)",
@@ -72,7 +75,8 @@ $(function() {
 
 	/* Fit blocks in window */
 	wall.fitZone(wallContainer.width(), wallContainer.height());
-	
+	wall.refresh(wallContainer.width(), wallContainer.height());
+
 	var resetWall = function(){
 		// empty wall
 		$(".adBlock").remove();
@@ -82,7 +86,7 @@ $(function() {
 			cellW: wallContainer.width() / maxRows,
 		});
 		// fill in with new elements
-		for (var i = 0 ; i < (maxRows * maxCols)/2 ; i++){
+		for (var i = 0 ; i < maxRows * maxCols ; i++){
 			wall.appendBlock(
 				_.template(
 					adBlockTemplate, 
@@ -96,34 +100,50 @@ $(function() {
 			);
 		}
 		wall.fitZone(wallContainer.width(), wallContainer.height());
+		wall.refresh(wallContainer.width(), wallContainer.height());
 	}	
 
 	/* Interval function */
 	var intervalFunction = function(){
 		// Get a random element 
-		var randomElements = $(".adBlock").filter(function(){return $(this).width()>0;}).get().sort(
+		var randomElements = $(".adBlock:visible").get().sort(
 			function(){return Math.round(Math.random())}).slice(0,1);
+		var noNewElements = randomElements.length;
 
-		$.when($(randomElements).fadeOut(fadeOutTime)).then(function() {
-			var noNewElements = randomElements.length;
-			// Add new elements
-			for (var i = 0 ; i < noNewElements ; i++){
-				wall.appendBlock(
-					_.template(
-						adBlockTemplate, 
-						{ 
-							width : Math.round(Math.random()+1) * wallContainer.width()/(maxCols+1), 
-							height : Math.round(Math.random()+1) * wallContainer.height()/(maxRows+1), 
-							color : colors[Math.floor(Math.random()*colors.length)%colors.length],
-							content : adContent[Math.floor(Math.random()*adContent.length)%adContent.length], 
-						}
-					)
-				);
+		$(randomElements).animate(  
+			{rotation: 180 },
+			{
+				duration: fadeOutTime,
+				step: function(now, fx) {
+					if (animationSlideUpFlag){
+						$(this).css({"height" : 0});
+					}
+					if (animationSlideLeftFlag){
+						$(this).css({"width" : 0});
+					}
+					if (animationRotateFlag){
+						$(this).css({"transform": "rotate("+now+"deg)"});
+					}
+					$(this).css({"opacity" : 0.0});
+				},
+				complete : function(){
+					$(this).remove();
+					wall.appendBlock(
+						_.template(
+							adBlockTemplate, 
+							{ 
+								width : Math.round(Math.random()+1) * wallContainer.width()/(maxCols+1), 
+								height : Math.round(Math.random()+1) * wallContainer.height()/(maxRows+1), 
+								color : colors[Math.floor(Math.random()*colors.length)%colors.length],
+								content : adContent[Math.floor(Math.random()*adContent.length)%adContent.length], 
+							}
+						)
+					);
+					// reorder AdWall 
+					wall.refresh(wallContainer.width(), wallContainer.height());
+				}
 			}
-			$(randomElements).remove();
-			// reorder AdWall 
-			wall.refresh(wallContainer.width(), wallContainer.height());
-		});
+		);
 	}; 
 
 	// periodically remove an element and create a new one 
@@ -151,6 +171,24 @@ $(function() {
 		}
 	});
 	$("#timerValue").html($("#timerSlider").slider("value"));	
+
+	// instantiate fadeOut slider object
+	$("#fadeOutSlider").slider({
+		range: "min",
+		value: fadeOutTime,
+		min: 100,
+		step: 100,
+		max: 2000,
+		change: function( event, ui){
+			$( "#fadeOutValue" ).html( ui.value );
+			fadeOutTime = ui.value;
+		},
+		slide: function( event, ui ) {
+			$( "#fadeOutValue" ).html( ui.value );
+			fadeOutTime = ui.value;					
+		}
+	});
+	$("#fadeOutValue").html($("#fadeOutSlider").slider("value"));	
 
 	// instantiate max rows slider object
 	$("#rowsSlider").slider({
@@ -189,5 +227,20 @@ $(function() {
 		}
 	});
 	$("#colsValue").html($("#colsSlider").slider("value"));	
+
+	// set radio buttons control events
+	$('input[type=checkbox][name=animation]').change(function() {
+	        if (this.value == "slideup") {
+			animationSlideUpFlag = $(this).is(':checked');
+		}
+		else if (this.value == "slideleft") {
+			animationSlideLeftFlag = $(this).is(':checked');
+		}
+		else if (this.value == "rotate") {
+			animationRotateFlag = $(this).is(':checked');
+		}
+	});
+
+	$('input[type=checkbox][name=animation]').prop('checked', false);
 });
 
