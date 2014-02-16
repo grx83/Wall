@@ -13,6 +13,7 @@ $(function() {
 	var animationSlideLeftFlag = false;
 	var animationRotateFlag = false;
 	var colors = [
+		/*
 		"rgb(135, 0, 0)",
 		"rgb(0, 106, 63)",
 		"rgb(211, 84, 0)",
@@ -26,16 +27,21 @@ $(function() {
 		"rgb(14, 68, 173)",
 		"rgb(243, 156, 180)",
 		"rgb(123, 100, 122)",
+		*/
+		"rgb(210,51,110)",
+		"rgb(210,51,110)",
+        	"rgb(157,199,254)",
+        	"rgb(254,203,129)",
+        	"rgb(155,215,158)"
 	];
 
 	var adContent = [
-		_.template("<div class='adText'><%= content %> </div>", { content : "This is a sexy ad"}),
-		_.template("<div class='adText'><%= content %> </div>", { content : "Short ad"}),
-		_.template("<div class='adText'><%= content %> </div>", { content : "Nobody reads text anyway, direct neural stimulation is the future"}),
-		_.template("<div class='adText'><%= content %> </div>", { content : "UTF8 is the new ASCII"}),
+		_.template("<div class='adText <%= bgclass %>'><span class='adHead'><%=chead %></span><span class='adContent'><%= content %></span><span class='adFooter'><%= cfoot %></span></div>", { content : "Starbucks just gave me a free drink and I don't know why. All I have to say is, @Starbucks, I love you! #coffee #Starbucks", chead: "‏@BradBrad1016", cfoot: "‏3 minutes ago via Twitter" , bgclass: "twitter" }),	
+		_.template("<div class='adText <%= bgclass %>'><span class='adHead'><%= chead %></span><span class='adContent'><%= content %></span><span class='adFooter'><%= cfoot %></span></div>", { content : "You need to add FB feeds too!", chead : "‏Mark Zuck", cfoot : "‏just now via Foursquare" , bgclass: "" }),	
+		_.template("<div class='adText'><span class='adHead'><%= chead %></span><%= content %> </div>", { content : "UTF8 is the new ASCII", chead : "‏Mark Zuck"}),
 		_.template("<div class='adText'><%= content %> </div>", { content : "L1 is the new L2"}),
 		_.template("<div class='adText'><%= content %> </div>", { content : "Twitter is full of bots"}),
-		_.template("<div class='adText'><%= content %> </div>", { content : "Facebook is full of dead pets"}),
+		_.template("<div class='adText <%= bgclass %>'><span class='adHead'><%= chead %></span><span class='adContent'><%= content %></span><span class='adFooter'><%= cfoot %></span></div>", { content : "I am becoming the mayor here!", chead : "Arxwn", cfoot : "‏just now via Instagram" , bgclass: "insta" }),	
 		_.template("<div class='adText'><%= content %> </div>", { content : "NSA ML algorithms are classifying your email"}),
 		_.template("<div class='adText'><%= content %> </div>", { content : "Google knows best"}),
 	];
